@@ -1,0 +1,86 @@
+TITLE MASM Template						(main.asm)
+
+INCLUDE Irvine32.inc
+.data
+Matica DW 10h, 3, 1, 40h,50h
+	   DW 25, 24, 50, 2, 3
+	   DW 7, 575, 78, 78, 75
+
+	   riadok DW 1 dup(?),0
+	   zapisDoSub DW 3 dup(?),0
+	   DlzkaRiadku EQU sizeof Matica
+	   filename db "test.txt",0
+       outfile	DD ? 
+.code
+Zapis PROC 
+lea edx,filename
+call CreateOutputFile
+mov outfile, eax
+mov eax, outfile
+lea edx, zapisDoSub
+mov ecx,lengthof zapisDoSub
+call WriteToFile
+mov eax, outfile
+call CloseFile
+ret
+Zapis ENDP
+
+main PROC
+mov ecx,15
+mov edi,0
+mov esi,0
+mov edx,0
+
+
+Cyklus:
+cmp esi,0
+je Navestie
+cmp esi,5
+je Vypis
+cmp bx,Matica[edi*2]
+ja Prirad
+inc edi
+inc esi
+
+loop Cyklus
+	mov eax,0
+	mov ax,riadok
+	mov zapisDoSub[edx*2],ax
+	call WriteInt
+	mov al,0Ah
+	call WriteChar
+	jmp Koniec
+
+	Navestie:
+	mov bx,Matica[edi*2]
+	mov riadok,bx
+	inc edi
+	inc esi
+	dec ecx
+	jmp Cyklus
+
+	Prirad:
+	mov bx,Matica[edi*2]
+	mov riadok,bx
+	dec ecx
+	inc edi
+	inc esi
+	jmp Cyklus
+
+	Vypis:
+	mov eax,0
+	mov ax,riadok
+	mov zapisDoSub[edx*2],ax
+	inc edx
+	call WriteInt
+	mov al,0Ah
+	call WriteChar
+	mov esi,0
+	jmp Cyklus
+
+Koniec:
+call Zapis
+	exit
+main ENDP
+
+END main
